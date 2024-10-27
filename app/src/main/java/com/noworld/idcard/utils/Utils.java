@@ -177,4 +177,13 @@ public class Utils {
         String[] strCodes = idCard.trim().split(" ");
         return strCodes.length > 1;
     }
+
+    public static boolean isInArray(String value, String[] array) {
+        for (String item : array) {
+            if (item.equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

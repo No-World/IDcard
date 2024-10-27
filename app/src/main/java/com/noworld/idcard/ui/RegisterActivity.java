@@ -63,6 +63,9 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView birth;
     private ImageView img_avatar;
 
+    // 包含中国所有民族的数组
+    private String[] nations = {"阿昌", "鄂温克", "傈僳", "水", "白", "高山", "珞巴", "塔吉克", "保安", "仡佬", "满", "塔塔尔", "布朗", "哈尼", "毛南", "土家", "布依", "哈萨克", "门巴", "土", "朝鲜", "汉", "蒙古", "佤", "达斡尔", "赫哲", "苗", "维吾尔", "傣", "回", "仫佬", "乌孜别克", "德昂", "基诺", "纳西", "锡伯", "东乡", "京", "怒", "瑶", "侗", "景颇", "普米", "彝", "独龙", "柯尔克孜", "羌", "裕固", "俄罗斯", "拉祜", "撒拉", "藏", "鄂伦春", "黎", "畲", "壮"};
+
     private PersonIdCard personIdCard = new PersonIdCard();
 
     private Context mContext = null;
@@ -158,7 +161,7 @@ public class RegisterActivity extends AppCompatActivity {
                     toastOutput("性别不可为空");
                     break;
                 case NATION_ERROR:
-                    toastOutput("名族不可为空");
+                    toastOutput("民不可为空");
                     break;
                 case IDCARD_NULL_ERROR:
                     toastOutput("身份证号不可为空");
@@ -366,6 +369,15 @@ public class RegisterActivity extends AppCompatActivity {
     private void writeAttributes() {
         Log.i(TAG, "writeAttributes edit_name " + edit_name.getText().length());
         personIdCard.setName(edit_name.getText().toString());
+        if (edit_nation.getText().length() == 0) {
+            toastOutput("民族不可为空");
+            return;
+        }
+        // 如果民族不在数组中
+        if (!Utils.isInArray(edit_nation.getText().toString(), nations)) {
+            toastOutput("民族不在范围内或不符合格式(例:汉族请填写“汉”)");
+            return;
+        }
         personIdCard.setNation(edit_nation.getText().toString());
         personIdCard.setIdCard(edit_idcard.getText().toString());
         personIdCard.setAddress(edit_address.getText().toString());
