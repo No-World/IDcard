@@ -32,6 +32,9 @@ import android.widget.Toast;
 import android.widget.TextView;
 import android.Manifest;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -65,6 +68,9 @@ public class RegisterActivity extends AppCompatActivity {
 
     // 包含中国所有民族的数组
     private String[] nations = {"阿昌", "鄂温克", "傈僳", "水", "白", "高山", "珞巴", "塔吉克", "保安", "仡佬", "满", "塔塔尔", "布朗", "哈尼", "毛南", "土家", "布依", "哈萨克", "门巴", "土", "朝鲜", "汉", "蒙古", "佤", "达斡尔", "赫哲", "苗", "维吾尔", "傣", "回", "仫佬", "乌孜别克", "德昂", "基诺", "纳西", "锡伯", "东乡", "京", "怒", "瑶", "侗", "景颇", "普米", "彝", "独龙", "柯尔克孜", "羌", "裕固", "俄罗斯", "拉祜", "撒拉", "藏", "鄂伦春", "黎", "畲", "壮"};
+
+    private ActivityResultLauncher<Intent> captureImageLauncher;
+    private ActivityResultLauncher<Intent> pickImageLauncher;
 
     private PersonIdCard personIdCard = new PersonIdCard();
 
@@ -197,6 +203,42 @@ public class RegisterActivity extends AppCompatActivity {
         setTitle("身份证导入系统   设计者: NoWorld");
 
         initView();
+
+        captureImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Bundle extras = result.getData().getExtras();
+                        Bitmap imageBitmap = (Bitmap) extras.get("data");
+                        img_avatar.setImageBitmap(imageBitmap);
+                    }
+                }
+        );
+
+        pickImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        try {
+                            Uri imageUri = result.getData().getData();
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            options.inJustDecodeBounds = true;
+                            BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri), null, options);
+
+                            // Calculate inSampleSize
+                            options.inSampleSize = calculateInSampleSize(options, 100, 100);
+
+                            // Decode bitmap with inSampleSize set
+                            options.inJustDecodeBounds = false;
+                            Bitmap imageBitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri), null, options);
+                            img_avatar.setImageBitmap(imageBitmap);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        );
+
     }
 
     private void initView() {
@@ -232,13 +274,17 @@ public class RegisterActivity extends AppCompatActivity {
         bindService(intent, conn, BIND_AUTO_CREATE);
     }
 
-    private ProgressDialog progressDialog;
+    private AlertDialog alertDialog;
 
     // 申请相机权限
     private void requestCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            // 显示加载对话框
-            progressDialog = ProgressDialog.show(this, "请求权限", "正在请求相机权限，请稍候...", true);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("请求权限");
+            builder.setMessage("正在请求相机权限，请稍候...");
+            builder.setCancelable(false);
+            alertDialog = builder.create();
+            alertDialog.show();
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         } else {
             captureImage();
@@ -250,8 +296,8 @@ public class RegisterActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
             // 关闭加载对话框
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.dismiss();
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.dismiss();
             }
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 captureImage();
@@ -266,7 +312,7 @@ public class RegisterActivity extends AppCompatActivity {
         // 调用系统前置相机拍照
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            captureImageLauncher.launch(takePictureIntent);
         } else {
             Toast.makeText(this, "没有找到相机应用", Toast.LENGTH_SHORT).show();
         }
@@ -277,7 +323,7 @@ public class RegisterActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, REQUEST_PICK_IMAGE);
+        pickImageLauncher.launch(intent);
     }
 
     @Override
