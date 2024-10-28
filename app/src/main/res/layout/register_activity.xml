@@ -45,7 +45,7 @@
 
         <EditText
             android:id="@+id/edit_name"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:ems="10"
             android:textSize="15sp"
@@ -107,12 +107,12 @@
 
         <EditText
             android:id="@+id/edit_nation"
-            android:layout_width="wrap_content"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
             android:textSize="15sp"
             android:ems="10"
             android:singleLine="true"
-            android:hint="请输入民族" />
+            android:hint="请输入民族(例:汉族请填写“汉”)" />
 
     </LinearLayout>
 
@@ -133,14 +133,15 @@
 
         <EditText
             android:id="@+id/edit_idcard"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="15sp"
             android:ems="18"
             android:maxLength="18"
             android:hint="18位身份证号码"
             android:singleLine="true"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="50dp" />
 
     </LinearLayout>
 
@@ -161,12 +162,13 @@
 
         <EditText
             android:id="@+id/edit_address"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="2"
             android:ems="15"
             android:hint="详细地址"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="50dp" />
     </LinearLayout>
 
     <LinearLayout
