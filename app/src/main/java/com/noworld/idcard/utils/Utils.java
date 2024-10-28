@@ -9,6 +9,7 @@ import android.util.Log;
 import com.noworld.idcard.data.PersonIdCard;
 
 import java.io.ByteArrayOutputStream;
+import java.text.SimpleDateFormat;
 
 public class Utils {
 
@@ -78,6 +79,10 @@ public class Utils {
                 return Return.IDCARD_INSUFFICIENT_ERROR;
             } else if (checkSpace(idCard) || checkNumber(idCard) || checkDate(idCard)) {
                 return Return.IDCARD_ERROR;
+            } // 校验日期是否小于系统日期
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            if (date != null && date.compareTo(sdf.format(System.currentTimeMillis())) > 0) {
+                return Return.IDCARD_ERROR;
             }
             personIdCard.setDate_of_birth(date);
             date = null;
@@ -90,6 +95,7 @@ public class Utils {
             return Return.ADDRESS_ERROR;
         }
 
+        // check avatar
         if (personIdCard.getAvatar() == null) {
             return Return.AVATAR_ERROR;
         }

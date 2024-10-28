@@ -176,7 +176,7 @@ public class RegisterActivity extends AppCompatActivity {
                     toastOutput("身份证号不足18位");
                     break;
                 case IDCARD_ERROR:
-                    toastOutput("不符合身份证格式");
+                    toastOutput("身份证非法(格式错误或出生日期错误)");
                     break;
                 case ADRRESS_ERROR:
                     toastOutput("地址不可为空");
